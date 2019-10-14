@@ -73,7 +73,21 @@ func (f *Fusser) fussValue(v reflect.Value) {
 		}
 
 	case reflect.Map:
-		// TODO
+		isNil := f.data[0] == 0 || len(f.data) == 1
+		f.data = f.data[1:]
+		if isNil {
+			return
+		}
+		items := int(f.data[0])
+		f.data = f.data[1:]
+		v.Set(reflect.MakeMapWithSize(v.Type(), items))
+		for i := 0; i < items && len(f.data) > 0; i++ {
+			newKey := reflect.New(v.Type().Key()).Elem()
+			f.fussValue(newKey)
+			newValue := reflect.New(v.Type().Elem()).Elem()
+			f.fussValue(newValue)
+			v.SetMapIndex(newKey, newValue)
+		}
 
 	// Basic types
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
