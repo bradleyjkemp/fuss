@@ -1,8 +1,10 @@
 package fuss
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/binary"
+	"io"
 	"net/http"
 	"reflect"
 	"testing"
@@ -49,6 +51,15 @@ func TestPointer(t *testing.T) {
 	Seed([]byte{0, 3, 'a', 'b', 'c'}).Fuss(&result)
 	if result != nil {
 		t.Fatal("Result", result, "not equal expected (nil)")
+	}
+}
+
+func TestIOReader(t *testing.T) {
+	var result io.Reader
+	Seed([]byte{5, 0, 0, 0, 0}).Fuss(&result)
+	_, ok := result.(*bytes.Reader)
+	if !ok {
+		t.Fatal("Expected interface to have been implemented with bytes.Reader")
 	}
 }
 

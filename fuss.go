@@ -1,7 +1,9 @@
 package fuss
 
 import (
+	"bytes"
 	"encoding/binary"
+	"io"
 	"reflect"
 	"unsafe"
 )
@@ -48,6 +50,8 @@ func (f *Fusser) fussValue(v reflect.Value) {
 		// else keep it nil
 
 	// TODO: interface :/ (hard because we have no idea what types implement what interfaces, get a hint from caller?)
+	case reflect.Interface:
+		f.fussInterface(v)
 
 	// Collections
 	case reflect.Struct:
@@ -119,5 +123,27 @@ func (f *Fusser) fussValue(v reflect.Value) {
 
 	default:
 		// type not handled yet
+	}
+}
+
+var ioReader = reflect.TypeOf((*io.Reader)(nil)).Elem()
+
+func (f *Fusser) fussInterface(v reflect.Value) {
+	if len(f.data) == 0 {
+		return
+	}
+	switch v.Type() {
+	case ioReader:
+		length := int(f.data[0])
+		f.data = f.data[1:]
+		if length > len(f.data) {
+			length = len(f.data)
+		}
+		v.Set(reflect.ValueOf(bytes.NewReader(f.data[0:length])))
+		f.data = f.data[length:]
+
+	default:
+		// don't know how to handle arbitrary interfaces yet?
+		// Keep a cache of types we know about and check if they implement an interface?
 	}
 }
