@@ -8,6 +8,6 @@ import (
 
 func FuzzHttpRequest(data []byte) int {
 	r := http.Request{}
-	fuss.Seed(data).Fuss(&r)
+	fuss.Seed(data).Fuzz(&r)
 	return 0
 }

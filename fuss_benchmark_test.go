@@ -14,6 +14,6 @@ func BenchmarkFussHttpRequest(b *testing.B) {
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		req := &http.Request{}
-		Seed(data).Fuss(req)
+		Seed(data).Fuzz(req)
 	}
 }
